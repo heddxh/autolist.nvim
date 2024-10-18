@@ -126,6 +126,12 @@ local function is_in_code_fence()
   return parser and parser:is_in_markdown_code_fence()
 end
 
+local function delete_bullet(del_above)
+  fn.setline(fn.line '.' - (del_above and 1 or -1), '')
+  utils.reset_cursor_column()
+  fn.deletebufline('', fn.line '.' - (del_above and 1 or -1))
+end
+
 local function find_suitable_bullet(line, filetype_lists, del_above)
   -- ipairs is used to optimise list_types (and say who has priority)
   for i, filetype_specific_pattern in ipairs(filetype_lists) do
@@ -133,9 +139,7 @@ local function find_suitable_bullet(line, filetype_lists, del_above)
 
     if bullet then
       if string.len(line) == string.len(bullet) then
-        -- empty bullet, delete it
-        fn.setline(fn.line(".") - (del_above and 1 or -1), "")
-        utils.reset_cursor_column()
+        delete_bullet(del_above) -- empty bullet, delete it
         return nil
       end
       return bullet
